@@ -95,7 +95,9 @@ const ArticlePage: React.FC = () => {
         <div className="space-y-6">
           <div>
             <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-2">AI Summary</h3>
-            <p className="text-lg leading-relaxed">{article.summary}</p>
+            <p className="text-lg leading-relaxed">
+              {article.summary || <span className="italic text-secondary">AI analysis will be available in Phase 3.</span>}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#152336] p-6 rounded border border-[#1e2a3b]">
@@ -104,7 +106,9 @@ const ArticlePage: React.FC = () => {
                 <Briefcase className="w-4 h-4" />
                 <span>Business Impact</span>
               </h3>
-              <p className="text-sm">{article.business_impact}</p>
+              <p className="text-sm">
+                {article.business_impact || <span className="italic text-secondary">Pending AI analysis.</span>}
+              </p>
             </div>
             <div>
               <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-2 flex items-center space-x-2">

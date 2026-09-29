@@ -22,15 +22,16 @@ export async function initDb(): Promise<void> {
     // For simplicity per instructions, we rely on existing demo data not blocking,
     // and application logic for duplicates. The new table creation will have the UNIQUE constraint.
 
-    // As per the plan request, "update the initDb function to drop and recreate the table"
-    // Since the instruction explicitly asked NOT to delete the database automatically
-    // and keep existing demo data in rule #16, dropping the table is contradictory to the instructions.
-    // I am performing the migration safely by relying on the application logic deduplication in newsService.ts,
-    // and ONLY dropping and recreating the tables if the 'news' table DOES NOT exist (safety check).
+    // Ensure the news table exists
     const checkTable = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='news'");
     if (checkTable.length === 0) {
       createTables();
       seedData();
+      saveDb();
+    } else {
+      // Create a UNIQUE index on the url column if it doesn't already exist.
+      // This enforces database-level duplicate protection without destroying existing data.
+      db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_news_url ON news(url);");
       saveDb();
     }
   } else {

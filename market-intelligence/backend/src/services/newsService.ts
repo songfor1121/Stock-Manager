@@ -112,8 +112,8 @@ export class NewsService {
         article.url,
         article.publishedAt,
         'Other',
-        'AI analysis will be available in Phase 3.',
-        'Pending AI analysis.',
+        '', // Leaving empty for Phase 3 AI Analysis
+        '', // Leaving empty for Phase 3 AI Analysis
         'Unclear'
       ]);
       inserted++;

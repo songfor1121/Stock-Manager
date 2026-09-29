@@ -28,6 +28,21 @@ export const companiesApi = {
   }
 };
 
+export interface FetchResult {
+  ticker?: string;
+  fetched: number;
+  inserted: number;
+  duplicates: number;
+}
+
+export interface FetchAllResult {
+  companies: number;
+  fetched: number;
+  inserted: number;
+  duplicates: number;
+  failedTickers: string[];
+}
+
 export const newsApi = {
   getLatest: async () => {
     const response = await api.get<News[]>('/news');
@@ -35,6 +50,14 @@ export const newsApi = {
   },
   getById: async (id: number) => {
     const response = await api.get<News>(`/news/${id}`);
+    return response.data;
+  },
+  fetchForTicker: async (ticker: string) => {
+    const response = await api.post<FetchResult>(`/news/fetch/${ticker}`);
+    return response.data;
+  },
+  fetchAll: async () => {
+    const response = await api.post<FetchAllResult>('/news/fetch-all');
     return response.data;
   }
 };

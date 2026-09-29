@@ -59,23 +59,24 @@ const NewsPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {news.map((article, index) => {
+        {news.map((article) => {
           const company = companies.find(c => c.id === article.company_id);
           return (
             <Link
-              key={index}
-              to={`/article/${index + 1}`}
+              key={article.id}
+              to={`/article/${article.id}`}
               className="bg-[#0f1c2e] border border-[#1e2a3b] p-5 rounded hover:border-accent transition-colors block"
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center space-x-3">
                   <span className="font-bold text-accent">{company?.ticker || 'UNK'}</span>
-                  <span className="text-xs text-secondary bg-[#1e2a3b] px-2 py-1 rounded">{article.category}</span>
+                  <span className="text-xs text-secondary bg-[#1e2a3b] px-2 py-1 rounded">{article.category || 'Other'}</span>
                   <span className="text-xs text-secondary">{new Date(article.published_at).toLocaleDateString()}</span>
+                  <span className="text-xs text-secondary italic px-2">{article.source}</span>
                 </div>
                 <div className="flex items-center space-x-1 text-sm bg-[#152336] px-2 py-1 rounded">
                   {getImpactIcon(article.market_impact)}
-                  <span className="text-secondary">{article.market_impact}</span>
+                  <span className="text-secondary">{article.market_impact || 'Unclear'}</span>
                 </div>
               </div>
               <h3 className="text-xl font-bold mb-2">{article.title}</h3>
@@ -83,6 +84,11 @@ const NewsPage: React.FC = () => {
             </Link>
           );
         })}
+        {news.length === 0 && (
+          <div className="text-secondary text-center p-8 bg-[#0f1c2e] border border-[#1e2a3b] rounded">
+            No news found. Use the Watchlist or Dashboard to fetch latest news.
+          </div>
+        )}
       </div>
     </div>
   );

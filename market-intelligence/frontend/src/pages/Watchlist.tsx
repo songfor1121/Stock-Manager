@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { companiesApi } from '../api/client';
+import { companiesApi, newsApi } from '../api/client';
 import { Company } from '../types';
-import { Plus, Trash2, Edit2, X, Check } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, RefreshCw } from 'lucide-react';
 
 const Watchlist: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [fetchingTicker, setFetchingTicker] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newCompany, setNewCompany] = useState({ name: '', ticker: '', sector: '' });
@@ -43,6 +44,19 @@ const Watchlist: React.FC = () => {
       fetchCompanies();
     } catch (error) {
       console.error('Failed to delete company', error);
+    }
+  };
+
+  const handleFetchNews = async (ticker: string) => {
+    setFetchingTicker(ticker);
+    try {
+      const summary = await newsApi.fetchForTicker(ticker);
+      alert(`Fetched ${summary.fetched} articles.\nInserted: ${summary.inserted}\nDuplicates skipped: ${summary.duplicates}`);
+    } catch (error) {
+      console.error('Failed to fetch news', error);
+      alert('Failed to fetch news. Please try again.');
+    } finally {
+      setFetchingTicker(null);
     }
   };
 
@@ -117,7 +131,15 @@ const Watchlist: React.FC = () => {
                 <td className="p-4 font-bold">{company.name}</td>
                 <td className="p-4 font-mono text-accent">{company.ticker}</td>
                 <td className="p-4 text-secondary">{company.sector}</td>
-                <td className="p-4 flex justify-end space-x-3 text-secondary">
+                <td className="p-4 flex justify-end items-center space-x-4 text-secondary">
+                  <button
+                    onClick={() => handleFetchNews(company.ticker)}
+                    disabled={fetchingTicker === company.ticker}
+                    className="flex items-center space-x-1 text-xs bg-[#1e2a3b] px-2 py-1 rounded hover:text-accent disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${fetchingTicker === company.ticker ? 'animate-spin' : ''}`} />
+                    <span>{fetchingTicker === company.ticker ? 'Fetching...' : 'Fetch News'}</span>
+                  </button>
                   <button className="hover:text-accent transition-colors">
                     <Edit2 className="w-4 h-4" />
                   </button>

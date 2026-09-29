@@ -62,14 +62,17 @@ const CompanyPage: React.FC = () => {
             <span>Recent News</span>
           </h2>
           <div className="space-y-4">
-            {news.map((article, index) => (
+            {news.map((article) => (
               <Link
-                key={index}
-                to={`/article/${index + 1}`}
+                key={article.id}
+                to={`/article/${article.id}`}
                 className="bg-[#0f1c2e] border border-[#1e2a3b] p-4 rounded hover:border-accent transition-colors block"
               >
                 <div className="flex justify-between text-xs text-secondary mb-2">
-                  <span className="bg-[#1e2a3b] px-2 py-1 rounded">{article.category}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="bg-[#1e2a3b] px-2 py-1 rounded">{article.category || 'Other'}</span>
+                    <span className="italic">{article.source}</span>
+                  </div>
                   <span>{new Date(article.published_at).toLocaleDateString()}</span>
                 </div>
                 <h3 className="font-bold text-lg mb-2">{article.title}</h3>

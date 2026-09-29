@@ -36,12 +36,63 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const [isFetching, setIsFetching] = useState(false);
+  const [fetchSummary, setFetchSummary] = useState<any>(null);
+  const [lastFetched, setLastFetched] = useState<string | null>(null);
+
+  const handleFetchAll = async () => {
+    setIsFetching(true);
+    setFetchSummary(null);
+    try {
+      const summary = await newsApi.fetchAll();
+      setFetchSummary(summary);
+      setLastFetched(new Date().toLocaleString());
+
+      // Refresh the news list
+      const newsData = await newsApi.getLatest();
+      setRecentNews(newsData.slice(0, 5));
+    } catch (error) {
+      console.error('Failed to fetch news', error);
+    } finally {
+      setIsFetching(false);
+    }
+  };
+
   if (loading) return <div className="text-secondary animate-pulse">Loading dashboard...</div>;
 
   return (
     <div className="space-y-8">
+      <section className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[#0f1c2e] p-6 rounded border border-[#1e2a3b]">
+        <div>
+          <h1 className="text-2xl font-bold text-accent">MARKET INTELLIGENCE</h1>
+          {lastFetched && (
+            <div className="text-sm text-secondary mt-1">
+              Last updated: <br/> {lastFetched}
+            </div>
+          )}
+        </div>
+        <div className="mt-4 md:mt-0 text-right">
+          <button
+            onClick={handleFetchAll}
+            disabled={isFetching}
+            className="bg-accent text-background px-4 py-2 rounded font-bold hover:bg-opacity-90 disabled:opacity-50 transition-opacity"
+          >
+            {isFetching ? 'Fetching latest news...' : 'Fetch Latest News'}
+          </button>
+
+          {fetchSummary && (
+            <div className="text-xs text-secondary mt-2 text-left bg-[#152336] p-2 rounded">
+              <div className="font-bold text-mainText mb-1">News update complete</div>
+              <div>{fetchSummary.fetched} articles checked</div>
+              <div className="text-accent">{fetchSummary.inserted} new articles</div>
+              <div>{fetchSummary.duplicates} duplicates skipped</div>
+            </div>
+          )}
+        </div>
+      </section>
+
       <section>
-        <h2 className="text-2xl font-bold mb-4 text-accent border-b border-[#1e2a3b] pb-2">WATCHLIST OVERVIEW</h2>
+        <h2 className="text-xl font-bold mb-4 text-accent border-b border-[#1e2a3b] pb-2">WATCHLIST OVERVIEW</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {companies.map(company => (
             <Link
@@ -80,10 +131,10 @@ const Dashboard: React.FC = () => {
               {recentNews.map((article, index) => {
                 const company = companies.find(c => c.id === article.company_id);
                 return (
-                  <tr key={index} className="border-t border-[#1e2a3b] hover:bg-[#152336] transition-colors">
+                  <tr key={article.id} className="border-t border-[#1e2a3b] hover:bg-[#152336] transition-colors">
                     <td className="p-3 text-sm font-medium">{company?.ticker || 'UNK'}</td>
                     <td className="p-3">
-                      <Link to={`/article/${index + 1}`} className="hover:text-accent transition-colors block truncate max-w-md">
+                      <Link to={`/article/${article.id}`} className="hover:text-accent transition-colors block truncate max-w-md">
                         {article.title}
                       </Link>
                     </td>

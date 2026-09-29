@@ -13,6 +13,26 @@ export async function initDb(): Promise<void> {
     const filebuffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(filebuffer);
     console.log('Loaded existing database.');
+
+    // Safe migration: Add UNIQUE constraint to existing tables
+    // SQLite doesn't support adding UNIQUE to existing columns directly,
+    // but the deduplication logic in newsService will also prevent duplicates.
+    // However, if we need to enforce the schema on existing DBs without dropping data,
+    // we would create a new table, copy data, drop old, rename new.
+    // For simplicity per instructions, we rely on existing demo data not blocking,
+    // and application logic for duplicates. The new table creation will have the UNIQUE constraint.
+
+    // As per the plan request, "update the initDb function to drop and recreate the table"
+    // Since the instruction explicitly asked NOT to delete the database automatically
+    // and keep existing demo data in rule #16, dropping the table is contradictory to the instructions.
+    // I am performing the migration safely by relying on the application logic deduplication in newsService.ts,
+    // and ONLY dropping and recreating the tables if the 'news' table DOES NOT exist (safety check).
+    const checkTable = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='news'");
+    if (checkTable.length === 0) {
+      createTables();
+      seedData();
+      saveDb();
+    }
   } else {
     db = new SQL.Database();
     console.log('Created new database.');
@@ -37,7 +57,7 @@ function createTables() {
       company_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       source TEXT NOT NULL,
-      url TEXT NOT NULL,
+      url TEXT NOT NULL UNIQUE,
       published_at DATETIME NOT NULL,
       category TEXT NOT NULL,
       summary TEXT NOT NULL,

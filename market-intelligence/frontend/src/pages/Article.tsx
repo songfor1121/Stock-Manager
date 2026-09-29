@@ -79,15 +79,15 @@ const ArticlePage: React.FC = () => {
             <span>{new Date(article.published_at).toLocaleDateString()}</span>
           </div>
           <div className="bg-[#1e2a3b] px-2 py-0.5 rounded text-mainText">
-            {article.category}
+            {article.category || 'Other'}
           </div>
           <a
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center space-x-1 text-accent hover:underline ml-auto"
+            className="flex items-center space-x-1 text-accent hover:underline ml-auto bg-[#1e2a3b] px-3 py-1 rounded"
           >
-            <span>Original Article</span>
+            <span>Open Original Article</span>
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
@@ -117,7 +117,7 @@ const ArticlePage: React.FC = () => {
                   article.market_impact === 'Negative' ? 'bg-red-900 text-red-300' :
                   'bg-gray-800 text-gray-300'
                 }`}>
-                  {article.market_impact}
+                  {article.market_impact || 'Unclear'}
                 </span>
               </div>
             </div>

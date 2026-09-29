@@ -15,16 +15,33 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const news = await newsService.getLatestNews();
-    // Assuming the index roughly matches the ID for demo purposes.
-    // In a real app this would fetch from the DB.
-    // However, our instructions said to mock AI and News, so we use the service.
-    // Actually, the requirements mention "news" table.
-    // For simplicity, we just return the matching element from the mock service based on array index + 1 or title.
-    const article = news[id - 1] || news[0]; // Fallback to first
-    res.json({ id, ...article });
+    const article = await newsService.getNewsById(id);
+    if (article) {
+      res.json(article);
+    } else {
+      res.status(404).json({ error: 'Article not found' });
+    }
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch news article' });
+  }
+});
+
+router.post('/fetch/:ticker', async (req: Request, res: Response) => {
+  try {
+    const ticker = req.params.ticker;
+    const result = await newsService.fetchNewsForTicker(ticker);
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: `Failed to fetch news for ${req.params.ticker}: ${error.message}` });
+  }
+});
+
+router.post('/fetch-all', async (req: Request, res: Response) => {
+  try {
+    const result = await newsService.fetchAllNews();
+    res.json(result);
+  } catch (error: any) {
+    res.status(500).json({ error: `Failed to fetch all news: ${error.message}` });
   }
 });
 

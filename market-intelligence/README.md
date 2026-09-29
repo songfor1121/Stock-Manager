@@ -89,10 +89,20 @@ npm run dev
 
 **Expected Localhost URL:** `http://localhost:5173` (or port dynamically assigned by Vite).
 
-## Future Architecture (Phase 2)
+## Phase 2 Updates
 
-Currently, the application uses mock data for both news retrieval and AI analysis. The foundation is laid to integrate real systems:
+In Phase 2, the application transitioned from mock data arrays to an active **Yahoo Finance RSS Integration**:
+- News is fetched manually using the `Fetch Latest News` or company-specific `Fetch News` buttons in the dashboard and watchlist.
+- Fetching operations hit `POST /api/news/fetch/:ticker` and `POST /api/news/fetch-all`.
+- Extracted news properties (title, published date, source, original URL) are normalized.
+- Duplicate articles are identified by their URL and ignored during SQL ingestion.
+- The `fast-xml-parser` is used on the backend.
+- **Note:** AI Analysis is not yet implemented. Fetched articles default to 'Other' and 'Unclear' impacts, accompanied by a placeholder summary.
 
-1. **AI Service Integration**: Connect the `backend/src/services/aiService.ts` to OpenAI or an open-source LLM API to auto-generate summaries and detect business/market impacts.
-2. **Real News Sources**: Replace the mock data in `backend/src/services/newsService.ts` with real-time API integrations (e.g., RSS feeds, Alpha Vantage, Finnhub).
-3. **Ecosystem Mapping**: Visualizing the "Related Companies" data to see how supply chain or competitive news impacts broader industry sectors.
+## Future Architecture (Phase 3)
+
+Phase 3 will build upon Phase 2's data ingestion to establish an intelligent analysis pipeline:
+
+1. **AI Service Integration**: Connect the `backend/src/services/aiService.ts` to OpenAI or an open-source LLM API to auto-generate summaries, and detect business/market impacts based on the freshly ingested RSS text.
+2. **Ecosystem Mapping**: Visualizing the "Related Companies" data to see how supply chain or competitive news impacts broader industry sectors.
+3. **Automated Scheduling**: Shifting from manual UI-triggered fetching to cron/worker-based automated background fetching.

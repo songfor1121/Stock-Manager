@@ -3,6 +3,7 @@ import { Company, News, Note } from '../types';
 
 const api = axios.create({
   baseURL: 'http://localhost:3001/api', // Hardcoded for demo/local use per instructions
+  timeout: 5000, // Prevent hanging requests if backend is offline
 });
 
 export const companiesApi = {

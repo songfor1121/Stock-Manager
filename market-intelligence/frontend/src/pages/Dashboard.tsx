@@ -8,6 +8,7 @@ const Dashboard: React.FC = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [recentNews, setRecentNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -16,10 +17,11 @@ const Dashboard: React.FC = () => {
           companiesApi.getAll(),
           newsApi.getLatest()
         ]);
-        setCompanies(companiesData);
-        setRecentNews(newsData.slice(0, 5)); // Just take top 5 recent
-      } catch (error) {
-        console.error('Failed to fetch dashboard data', error);
+        setCompanies(companiesData || []);
+        setRecentNews(Array.isArray(newsData) ? newsData.slice(0, 5) : []);
+      } catch (err) {
+        console.error('Failed to fetch dashboard data', err);
+        setError('Unable to load dashboard. Please check that the backend is running.');
       } finally {
         setLoading(false);
       }
@@ -62,6 +64,12 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-8">
+      {error && (
+        <div className="bg-red-900 border border-red-700 text-red-200 p-4 rounded mb-6 flex items-center space-x-2">
+          <AlertCircle className="w-5 h-5" />
+          <span>{error}</span>
+        </div>
+      )}
       <section className="flex flex-col md:flex-row justify-between items-start md:items-center bg-[#0f1c2e] p-6 rounded border border-[#1e2a3b]">
         <div>
           <h1 className="text-2xl font-bold text-accent">MARKET INTELLIGENCE</h1>

@@ -31,8 +31,14 @@ export async function initDb(): Promise<void> {
     } else {
       // Create a UNIQUE index on the url column if it doesn't already exist.
       // This enforces database-level duplicate protection without destroying existing data.
-      db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_news_url ON news(url);");
-      saveDb();
+      // Wrapped in try/catch because if existing data contains duplicates, creating a UNIQUE index will throw SQLITE_CONSTRAINT_UNIQUE,
+      // and we must not crash the application startup.
+      try {
+        db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_news_url ON news(url);");
+        saveDb();
+      } catch (err: any) {
+        console.warn('Could not create UNIQUE index on news(url). Existing data might contain duplicates.', err.message);
+      }
     }
   } else {
     db = new SQL.Database();
